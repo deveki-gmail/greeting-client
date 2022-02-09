@@ -19,6 +19,7 @@ public class GreetingClientApplication {
 	@GetMapping("/hello")
 	public String sayHello() throws UnknownHostException, InterruptedException{
 		Thread.sleep(5000l);
+		System.out.println("Request processed successfully at server "+InetAddress.getLocalHost());
 		return "Hello @ "+InetAddress.getLocalHost();
 	}
 
