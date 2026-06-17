@@ -37,7 +37,8 @@ public class GreetingClientApplication {
 		System.out.println("Request received at client "+InetAddress.getLocalHost());
 		RestTemplate rt = new RestTemplate();
 		Map<String, String> map = new HashMap<>();
-		String g = rt.getForObject(url, String.class);
+		String endPointUrl = url+"/greet";
+		String g = rt.getForObject(endPointUrl, String.class);
 		map.put("greetingMessage", g);
 		if(randomName == null) 
 		{
