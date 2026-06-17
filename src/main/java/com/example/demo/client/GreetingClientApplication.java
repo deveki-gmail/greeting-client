@@ -43,7 +43,7 @@ public class GreetingClientApplication {
 		{
 			randomName = names[new Random().nextInt(names.length - 1)];
 		}
-		map.put("toDayHero", randomName);
+		System.out.println("Today's hero (greeting client) : "+randomName);
 		return map;
 	}
 	
