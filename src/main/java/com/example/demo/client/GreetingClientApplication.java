@@ -1,7 +1,13 @@
 package com.example.demo.client;
 
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -9,8 +15,11 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
@@ -33,13 +42,42 @@ public class GreetingClientApplication {
 	}
 	
 	@GetMapping("/greet")
-	public Map<String, String> sayHello() throws UnknownHostException, InterruptedException{
-		System.out.println("Request received at client "+InetAddress.getLocalHost());
+	public Map<String, String> sayHello(@RequestParam(name = "name", required = false) String name) throws UnknownHostException, InterruptedException{
+		System.out.println("Request received at client "+InetAddress.getLocalHost()+" for name "+(name!=null && !name.trim().isEmpty() ? name : ""));
 		RestTemplate rt = new RestTemplate();
 		Map<String, String> map = new HashMap<>();
 		String endPointUrl = url+"/greet";
-		String g = rt.getForObject(endPointUrl, String.class);
-		map.put("greetingMessage", g);
+		if(name!=null && !name.trim().isEmpty()) 
+		{
+			//uriMap.put("name", name);
+			endPointUrl = endPointUrl+"?name="+name;
+		}
+		
+		HttpHeaders headers = new HttpHeaders();
+		//String g = rt.getForObject(endPointUrl, String.class, uriMap);
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+		ResponseEntity<String> response = null;
+		try {
+			response = rt.exchange(
+					endPointUrl, 
+			        HttpMethod.GET, 
+			        entity, 
+			        String.class
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		String msg = "";
+		if(response != null && response.getStatusCodeValue()==200) 
+		{
+			msg = response.getBody();
+		}else 
+		{
+			msg = "Sorry...Unable to greet.";
+		}
+		
+		map.put("greetingMessage", msg);
 		if(randomName == null) 
 		{
 			randomName = names[new Random().nextInt(names.length - 1)];
